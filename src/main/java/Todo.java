@@ -6,6 +6,6 @@ public class Todo extends Task {
 
     @Override
     public String toString() {
-        return "[T]" + getStatusIcon() + description;
+        return "T | " + (isDone ? "1" : "0") + " | " + description;
     }
 }
