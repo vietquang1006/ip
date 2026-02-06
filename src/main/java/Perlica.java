@@ -4,48 +4,48 @@ import java.util.ArrayList;
 public class Perlica {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
-		ArrayList<Task> tasks = new ArrayList<>();
+		ArrayList<Task> tasks = Storage.loadTasks();
 		printWelcomeMessage();
 		while (scanner.hasNextLine()) {
 			try {
 				String[] input = scanner.nextLine().trim().split(" ", 2);
 				String command = input[0];
 				switch (command) {
-				case "bye":
-					if (input.length == 1) {
-						printResponse(" Bye. Hope to see you again soon!");
-						return;
-					} else {
-						throw new PerlicaException("Hey, only saying bye is enough.");
-					}
+					case "bye":
+						if (input.length == 1) {
+							printResponse(" Bye. Hope to see you again soon!");
+							return;
+						} else {
+							throw new PerlicaException("Hey, only saying bye is enough.");
+						}
 
-				case "list":
-					if (input.length == 1) {
-						printList(tasks);
+					case "list":
+						if (input.length == 1) {
+							printList(tasks);
+							break;
+						} else {
+							throw new PerlicaException("Type \"list\" to view all tasks.");
+						}
+
+					case "mark":
+					case "unmark":
+						updateMarking(command, input, tasks);
 						break;
-					} else {
-						throw new PerlicaException("Type \"list\" to view all tasks.");
-					}
 
+					case "todo":
+					case "deadline":
+					case "event":
+						addTask(command, input, tasks);
+						break;
 
-				case "mark":
-				case "unmark":
-					updateMarking(command, input, tasks);
-					break;
+					case "delete":
+						deleteTask(input, tasks);
+						break;
 
-				case "todo":
-				case "deadline":
-				case "event":
-					addTask(command, input, tasks);
-					break;
-
-				case "delete":
-					deleteTask(input, tasks);
-					break;
-
-				default:
-					throw new PerlicaException("I can't understand your command. Please try again.");
+					default:
+						throw new PerlicaException("I can't understand your command. Please try again.");
 				}
+				Storage.saveTasks(tasks);
 			} catch (PerlicaException e) {
 				printResponse(" " + e.getMessage());
 			} catch (NumberFormatException e) {
@@ -74,46 +74,46 @@ public class Perlica {
 		String details = input[1];
 		Task task;
 		switch (type) {
-		case "todo":
-			task = new Todo(details);
-			break;
-		case "deadline":
-			if (!details.contains(" /by ")) {
-				throw new PerlicaException("Invalid deadline, please try again.\n"
-						+ "deadline + task + /by + time");
-			}
-			String[] deadlineArguments = input[1].split(" /by ", 2);
-			if (deadlineArguments.length < 2
-					|| deadlineArguments[0].trim().isEmpty()
-					|| deadlineArguments[1].trim().isEmpty()) {
-				throw new PerlicaException("Invalid deadline, please try again.\n"
-						+ "deadline + task + /by + time");
-			}
-			String deadlineDescription = deadlineArguments[0].trim();
-			String time = deadlineArguments[1].trim();
-			task = new Deadline(deadlineDescription, time);
-			break;
-		case "event":
-			if (!details.contains(" /from ") || !details.contains(" /to ")
-					|| details.indexOf(" /from ") > details.indexOf(" /to ")) {
-				throw new PerlicaException("Invalid event, please try again.\n"
-						+ "event + task + /from + startTime + /to + endTime");
-			}
-			String[] eventArguments = input[1].split(" /from | /to ", 3);
-			if (eventArguments.length < 3
-					|| eventArguments[0].trim().isEmpty()
-					|| eventArguments[1].trim().isEmpty()
-					|| eventArguments[2].trim().isEmpty()) {
-				throw new PerlicaException("Invalid event, please try again.\n"
-						+ "deadline + task + /by + time");
-			}
-			String eventDescription = eventArguments[0];
-			String start = eventArguments[1];
-			String end = eventArguments[2];
-			task = new Event(eventDescription, start, end);
-			break;
-		default:
-			throw new PerlicaException("Unknown error");
+			case "todo":
+				task = new Todo(details);
+				break;
+			case "deadline":
+				if (!details.contains(" /by ")) {
+					throw new PerlicaException("Invalid deadline, please try again.\n"
+							+ "deadline + task + /by + time");
+				}
+				String[] deadlineArguments = input[1].split(" /by ", 2);
+				if (deadlineArguments.length < 2
+						|| deadlineArguments[0].trim().isEmpty()
+						|| deadlineArguments[1].trim().isEmpty()) {
+					throw new PerlicaException("Invalid deadline, please try again.\n"
+							+ "deadline + task + /by + time");
+				}
+				String deadlineDescription = deadlineArguments[0].trim();
+				String time = deadlineArguments[1].trim();
+				task = new Deadline(deadlineDescription, time);
+				break;
+			case "event":
+				if (!details.contains(" /from ") || !details.contains(" /to ")
+						|| details.indexOf(" /from ") > details.indexOf(" /to ")) {
+					throw new PerlicaException("Invalid event, please try again.\n"
+							+ "event + task + /from + startTime + /to + endTime");
+				}
+				String[] eventArguments = input[1].split(" /from | /to ", 3);
+				if (eventArguments.length < 3
+						|| eventArguments[0].trim().isEmpty()
+						|| eventArguments[1].trim().isEmpty()
+						|| eventArguments[2].trim().isEmpty()) {
+					throw new PerlicaException("Invalid event, please try again.\n"
+							+ "deadline + task + /by + time");
+				}
+				String eventDescription = eventArguments[0];
+				String start = eventArguments[1];
+				String end = eventArguments[2];
+				task = new Event(eventDescription, start, end);
+				break;
+			default:
+				throw new PerlicaException("Unknown error");
 		}
 		tasks.add(task);
 		printResponse("Got it. I've added this task:",
@@ -136,9 +136,8 @@ public class Perlica {
 			task.unmark();
 		}
 		printResponse(type.equals("mark")
-						? " Nice! I've marked this task as done:"
-						: " OK, I've marked this task as not done yet:"
-				, "   " + task);
+				? " Nice! I've marked this task as done:"
+				: " OK, I've marked this task as not done yet:", "   " + task);
 	}
 
 	static void printList(ArrayList<Task> tasks) {
@@ -163,8 +162,7 @@ public class Perlica {
 		}
 		String taskDeleted = tasks.get(index).toString();
 		tasks.remove(index);
-		printResponse("Noted. I've removed this task:"
-				, "   " + taskDeleted
-				, "Now you have " + tasks.size() + " task(s) in the list.");
+		printResponse("Noted. I've removed this task:", "   " + taskDeleted,
+				"Now you have " + tasks.size() + " task(s) in the list.");
 	}
 }

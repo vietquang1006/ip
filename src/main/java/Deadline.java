@@ -1,5 +1,6 @@
 public class Deadline extends Task {
     private String time;
+
     public Deadline(String description, String time) {
         super(description);
         this.time = time;
@@ -7,6 +8,6 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return "[D]" + getStatusIcon() + description + " (by: " + time + ")";
+        return "D | " + (isDone ? "1" : "0") + " | " + description + " | " + time;
     }
 }
