@@ -9,7 +9,19 @@ import perlica.task.Event;
 import perlica.storage.Storage;
 import perlica.exception.PerlicaException;
 
+/**
+ * The main class for the Perlica task management application.
+ * It handles the initialization of the application, user interaction loop, and
+ * command execution.
+ */
 public class Perlica {
+    /**
+     * The entry point of the Perlica application.
+     * Initializes the scanner, loads existing tasks from storage, and enters the
+     * main command loop.
+     *
+     * @param args Command line arguments (not used).
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ArrayList<Task> tasks = Storage.loadTasks();
@@ -66,11 +78,20 @@ public class Perlica {
         }
     }
 
+    /**
+     * Prints the initial welcome message when the application starts.
+     */
     static void printWelcomeMessage() {
         printResponse(" Hello! I'm Perlica", " What can I do for you?");
 
     }
 
+    /**
+     * Prints one or more custom messages framed by horizontal lines.
+     *
+     * @param lines An arbitrary number of string messages to be printed line by
+     *              line.
+     */
     static void printResponse(String... lines) {
         System.out.println("____________________________________________________________");
         for (String line : lines) {
@@ -79,6 +100,15 @@ public class Perlica {
         System.out.println("____________________________________________________________");
     }
 
+    /**
+     * Adds a new task based on the user's input command.
+     * Supports adding Todo, Deadline, and Event tasks.
+     *
+     * @param type  The type of task to add ("todo", "deadline", or "event").
+     * @param input The parsed user input containing the command and task details.
+     * @param tasks The current list of tasks to which the new task will be added.
+     * @throws PerlicaException If the input format is invalid or missing details.
+     */
     static void addTask(String type, String[] input, ArrayList<Task> tasks) throws PerlicaException {
         if (input.length < 2 || input[1].trim().isEmpty()) {
             throw new PerlicaException("Invalid task.");
@@ -133,6 +163,16 @@ public class Perlica {
                 "Now you have " + tasks.size() + " task(s) in the list.");
     }
 
+    /**
+     * Updates the completion status of a specific task.
+     * Can either mark a task as done or unmark it as not done.
+     *
+     * @param type  The action to perform ("mark" or "unmark").
+     * @param input The parsed user input containing the command and the task index.
+     * @param tasks The current list of tasks containing the target task.
+     * @throws PerlicaException If the index is invalid or the input is improperly
+     *                          formatted.
+     */
     static void updateMarking(String type, String[] input, ArrayList<Task> tasks) throws PerlicaException {
         if (input.length < 2) {
             throw new PerlicaException("Please specify which task to mark/unmark.");
@@ -152,6 +192,11 @@ public class Perlica {
                 : " OK, I've marked this task as not done yet:", "   " + task);
     }
 
+    /**
+     * Displays all current tasks in the task list.
+     *
+     * @param tasks The list of tasks to be displayed.
+     */
     static void printList(ArrayList<Task> tasks) {
         if (tasks.isEmpty()) {
             printResponse(" No tasks yet.");
@@ -164,6 +209,14 @@ public class Perlica {
         }
     }
 
+    /**
+     * Deletes a specific task from the task list based on its index.
+     *
+     * @param input The parsed user input containing the command and the task index.
+     * @param tasks The current list of tasks from which the task will be removed.
+     * @throws PerlicaException If the index is invalid or the input is improperly
+     *                          formatted.
+     */
     static void deleteTask(String[] input, ArrayList<Task> tasks) throws PerlicaException {
         if (input.length < 2) {
             throw new PerlicaException("Please specify which task to delete.");
@@ -178,6 +231,15 @@ public class Perlica {
                 "Now you have " + tasks.size() + " task(s) in the list.");
     }
 
+    /**
+     * Searches for and displays tasks whose descriptions contain the specified
+     * keyword.
+     *
+     * @param input The parsed user input containing the command and the search
+     *              keyword.
+     * @param tasks The current list of tasks to search within.
+     * @throws PerlicaException If no keyword is provided.
+     */
     static void findTask(String[] input, ArrayList<Task> tasks) throws PerlicaException {
         if (input.length < 2 || input[1].trim().isEmpty()) {
             throw new PerlicaException("Please enter a keyword to find.");

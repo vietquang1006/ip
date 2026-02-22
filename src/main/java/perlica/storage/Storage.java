@@ -14,9 +14,20 @@ import perlica.task.Deadline;
 import perlica.task.Event;
 import perlica.exception.PerlicaException;
 
+/**
+ * Handles the loading and saving of tasks to the hard disk.
+ * Connects the application's task list with a persistent storage file.
+ */
 public class Storage {
     private static final String FILE_PATH = "./data/perlica-list.txt";
 
+    /**
+     * Loads tasks from the persistent storage file.
+     * If the file or directory does not exist, it returns an empty list.
+     * Corrupted lines in the file are skipped.
+     *
+     * @return An {@code ArrayList} of {@code Task} objects recovered from the file.
+     */
     public static ArrayList<Task> loadTasks() {
         ArrayList<Task> tasks = new ArrayList<>();
         Path path = Paths.get(FILE_PATH);
@@ -44,6 +55,12 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves a list of tasks to the persistent storage file.
+     * Creates the required directories and file if they do not exist.
+     *
+     * @param tasks The {@code ArrayList} of {@code Task} objects to save.
+     */
     public static void saveTasks(ArrayList<Task> tasks) {
         try {
             Path path = Paths.get(FILE_PATH);
@@ -61,6 +78,15 @@ public class Storage {
         }
     }
 
+    /**
+     * Parses a single line from the storage file into a corresponding {@code Task}
+     * object.
+     *
+     * @param line A single line from the storage file representing a task.
+     * @return A {@code Task} object corresponding to the parsed line format.
+     * @throws PerlicaException If the line is improperly formatted and cannot be
+     *                          parsed.
+     */
     private static Task parseLineToTask(String line) throws PerlicaException {
         String[] parts = line.split(" \\| ");
         if (parts.length < 3) {
