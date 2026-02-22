@@ -50,6 +50,10 @@ public class Perlica {
                         deleteTask(input, tasks);
                         break;
 
+                    case "find":
+                        findTask(input, tasks);
+                        break;
+
                     default:
                         throw new PerlicaException("I can't understand your command. Please try again.");
                 }
@@ -172,5 +176,26 @@ public class Perlica {
         tasks.remove(index);
         printResponse("Noted. I've removed this task:", "   " + taskDeleted,
                 "Now you have " + tasks.size() + " task(s) in the list.");
+    }
+
+    static void findTask(String[] input, ArrayList<Task> tasks) throws PerlicaException {
+        if (input.length < 2 || input[1].trim().isEmpty()) {
+            throw new PerlicaException("Please enter a keyword to find.");
+        }
+        String keyword = input[1].trim();
+        ArrayList<String> matchingOutput = new ArrayList<>();
+        matchingOutput.add(" Here are the matching tasks in your list:");
+        int count = 1;
+        for (Task task : tasks) {
+            if (task.getDescription().contains(keyword)) {
+                matchingOutput.add(" " + count + ". " + task);
+                count++;
+            }
+        }
+        if (count == 1) {
+            printResponse(" No matching tasks found.");
+        } else {
+            printResponse(matchingOutput.toArray(new String[0]));
+        }
     }
 }
