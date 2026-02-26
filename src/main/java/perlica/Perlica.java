@@ -221,7 +221,21 @@ public class Perlica {
         if (input.length < 2) {
             throw new PerlicaException("Please specify which task to delete.");
         }
-        int index = Integer.parseInt(input[1]) - 1;
+        
+        if (input[1].trim().equalsIgnoreCase("all")) {
+            tasks.clear();
+            printResponse("Noted. I've removed all tasks.",
+                    "Now you have 0 task(s) in the list.");
+            return;
+        }
+
+        int index;
+        try {
+            index = Integer.parseInt(input[1]) - 1;
+        } catch (NumberFormatException e) {
+            throw new PerlicaException("Invalid task index. Please provide a number or 'all'.");
+        }
+
         if (index >= tasks.size() || index < 0) {
             throw new PerlicaException("Invalid task index.");
         }
