@@ -34,8 +34,11 @@ application {
 }
 
 shadowJar {
-    archiveBaseName = "duke"
-    archiveClassifier = null
+        archiveFileName = 'perlica.jar'
+}
+
+checkstyle {
+    toolVersion = '11.0.0'
 }
 
 run{

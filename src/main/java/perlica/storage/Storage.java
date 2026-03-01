@@ -1,6 +1,5 @@
 package perlica.storage;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,11 +7,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
-import perlica.task.Task;
-import perlica.task.Todo;
+
+import perlica.exception.PerlicaException;
 import perlica.task.Deadline;
 import perlica.task.Event;
-import perlica.exception.PerlicaException;
+import perlica.task.Task;
+import perlica.task.Todo;
 
 /**
  * Handles the loading and saving of tasks to the hard disk.
@@ -99,24 +99,27 @@ public class Storage {
 
         Task task;
         switch (type) {
-            case "T":
-                task = new Todo(description);
-                break;
-            case "D":
-                if (parts.length < 4)
-                    throw new PerlicaException("Invalid deadline format");
-                task = new Deadline(description, parts[3]);
-                break;
-            case "E":
-                if (parts.length < 5)
-                    throw new PerlicaException("Invalid event format");
-                task = new Event(description, parts[3], parts[4]);
-                break;
-            default:
-                throw new PerlicaException("Unknown task type");
+        case "T":
+            task = new Todo(description);
+            break;
+        case "D":
+            if (parts.length < 4) {
+                throw new PerlicaException("Invalid deadline format");
+            }
+            task = new Deadline(description, parts[3]);
+            break;
+        case "E":
+            if (parts.length < 5) {
+                throw new PerlicaException("Invalid event format");
+            }
+            task = new Event(description, parts[3], parts[4]);
+            break;
+        default:
+            throw new PerlicaException("Unknown task type");
         }
-        if (isDone)
+        if (isDone) {
             task.mark();
+        }
         return task;
     }
 }

@@ -2,8 +2,9 @@ package perlica.task;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import perlica.parser.DateParser;
+
 import perlica.exception.PerlicaException;
+import perlica.parser.DateParser;
 
 /**
  * Represents an event task in the Perlica application.

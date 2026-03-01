@@ -1,20 +1,20 @@
 package perlica;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import perlica.exception.PerlicaException;
 import perlica.task.Task;
 import perlica.task.Todo;
-import perlica.exception.PerlicaException;
 
 public class PerlicaTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -58,10 +58,10 @@ public class PerlicaTest {
         ArrayList<Task> tasks = new ArrayList<>();
         tasks.add(new Todo("read book"));
         tasks.add(new Todo("write code"));
-        
+
         String[] input = {"delete", "1"};
         Perlica.deleteTask(input, tasks);
-        
+
         assertEquals(1, tasks.size());
         assertEquals("write code", tasks.get(0).getDescription());
         assertTrue(outContent.toString().contains("Noted. I've removed this task:"));
@@ -74,10 +74,10 @@ public class PerlicaTest {
         ArrayList<Task> tasks = new ArrayList<>();
         tasks.add(new Todo("read book"));
         tasks.add(new Todo("write code"));
-        
+
         String[] input = {"delete", "all"};
         Perlica.deleteTask(input, tasks);
-        
+
         assertEquals(0, tasks.size());
         assertTrue(outContent.toString().contains("Noted. I've removed all tasks."));
         assertTrue(outContent.toString().contains("Now you have 0 task(s) in the list."));
@@ -87,7 +87,7 @@ public class PerlicaTest {
     public void deleteTask_invalidIndex_throwsException() {
         ArrayList<Task> tasks = new ArrayList<>();
         tasks.add(new Todo("read book"));
-        
+
         String[] input1 = {"delete", "2"};
         assertThrows(PerlicaException.class, () -> Perlica.deleteTask(input1, tasks));
 
@@ -99,7 +99,7 @@ public class PerlicaTest {
     public void deleteTask_invalidStringIndex_throwsException() {
         ArrayList<Task> tasks = new ArrayList<>();
         tasks.add(new Todo("read book"));
-        
+
         String[] input = {"delete", "abc"};
         Exception exception = assertThrows(PerlicaException.class, () -> Perlica.deleteTask(input, tasks));
         assertEquals("Invalid task index. Please provide a number or 'all'.", exception.getMessage());
