@@ -16,65 +16,32 @@ import perlica.task.Todo;
  * command execution.
  */
 public class Perlica {
+
+    private ArrayList<Task> tasks;
+
     /**
-     * The entry point of the Perlica application.
+     * Initializes Perlica by loading tasks from storage.
+     */
+    public Perlica() {
+        tasks = Storage.loadTasks();
+    }
+
+    /**
+     * The entry point of the Perlica CLI application.
      * Initializes the scanner, loads existing tasks from storage, and enters the
      * main command loop.
      *
      * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
+        Perlica perlica = new Perlica();
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Task> tasks = Storage.loadTasks();
         printWelcomeMessage();
         while (scanner.hasNextLine()) {
-            try {
-                String[] input = scanner.nextLine().trim().split(" ", 2);
-                String command = input[0];
-                switch (command) {
-                case "bye":
-                    if (input.length == 1) {
-                        printResponse(" Bye. Hope to see you again soon!");
-                        return;
-                    } else {
-                        throw new PerlicaException("Hey, only saying bye is enough.");
-                    }
-
-                case "list":
-                    if (input.length == 1) {
-                        printList(tasks);
-                        break;
-                    } else {
-                        throw new PerlicaException("Type \"list\" to view all tasks.");
-                    }
-
-                case "mark":
-                case "unmark":
-                    updateMarking(command, input, tasks);
-                    break;
-
-                case "todo":
-                case "deadline":
-                case "event":
-                    addTask(command, input, tasks);
-                    break;
-
-                case "delete":
-                    deleteTask(input, tasks);
-                    break;
-
-                case "find":
-                    findTask(input, tasks);
-                    break;
-
-                default:
-                    throw new PerlicaException("I can't understand your command. Please try again.");
-                }
-                Storage.saveTasks(tasks);
-            } catch (PerlicaException e) {
-                printResponse(" " + e.getMessage());
-            } catch (NumberFormatException e) {
-                printResponse("Invalid task index.");
+            String input = scanner.nextLine();
+            printResponse(perlica.getResponse(input).split("\n"));
+            if (input.trim().equals("bye")) {
+                break;
             }
         }
         scanner.close();
@@ -85,7 +52,6 @@ public class Perlica {
      */
     static void printWelcomeMessage() {
         printResponse(" Hello! I'm Perlica", " What can I do for you?");
-
     }
 
     /**
@@ -108,10 +74,10 @@ public class Perlica {
      *
      * @param type  The type of task to add ("todo", "deadline", or "event").
      * @param input The parsed user input containing the command and task details.
-     * @param tasks The current list of tasks to which the new task will be added.
+     * @return The response string indicating success or error.
      * @throws PerlicaException If the input format is invalid or missing details.
      */
-    static void addTask(String type, String[] input, ArrayList<Task> tasks) throws PerlicaException {
+    private String addTask(String type, String[] input) throws PerlicaException {
         if (input.length < 2 || input[1].trim().isEmpty()) {
             throw new PerlicaException("Invalid task.");
         }
@@ -160,7 +126,7 @@ public class Perlica {
             throw new PerlicaException("Unknown error");
         }
         tasks.add(task);
-        printResponse("Got it. I've added this task:",
+        return String.join("\n", "Got it. I've added this task:",
                 "   " + task,
                 "Now you have " + tasks.size() + " task(s) in the list.");
     }
@@ -171,11 +137,11 @@ public class Perlica {
      *
      * @param type  The action to perform ("mark" or "unmark").
      * @param input The parsed user input containing the command and the task index.
-     * @param tasks The current list of tasks containing the target task.
+     * @return The response string indicating success or error.
      * @throws PerlicaException If the index is invalid or the input is improperly
      *                          formatted.
      */
-    static void updateMarking(String type, String[] input, ArrayList<Task> tasks) throws PerlicaException {
+    private String updateMarking(String type, String[] input) throws PerlicaException {
         if (input.length < 2) {
             throw new PerlicaException("Please specify which task to mark/unmark.");
         }
@@ -189,7 +155,7 @@ public class Perlica {
         } else {
             task.unmark();
         }
-        printResponse(type.equals("mark")
+        return String.join("\n", type.equals("mark")
                 ? " Nice! I've marked this task as done:"
                 : " OK, I've marked this task as not done yet:", "   " + task);
     }
@@ -197,17 +163,17 @@ public class Perlica {
     /**
      * Displays all current tasks in the task list.
      *
-     * @param tasks The list of tasks to be displayed.
+     * @return The constructed string representation of all tasks.
      */
-    static void printList(ArrayList<Task> tasks) {
+    private String getList() {
         if (tasks.isEmpty()) {
-            printResponse(" No tasks yet.");
+            return " No tasks yet.";
         } else {
             String[] listOutput = new String[tasks.size()];
             for (int i = 0; i < tasks.size(); i++) {
                 listOutput[i] = " " + (i + 1) + " | " + tasks.get(i);
             }
-            printResponse(listOutput);
+            return String.join("\n", listOutput);
         }
     }
 
@@ -215,20 +181,19 @@ public class Perlica {
      * Deletes a specific task from the task list based on its index.
      *
      * @param input The parsed user input containing the command and the task index.
-     * @param tasks The current list of tasks from which the task will be removed.
+     * @return The response string indicating success or error.
      * @throws PerlicaException If the index is invalid or the input is improperly
      *                          formatted.
      */
-    static void deleteTask(String[] input, ArrayList<Task> tasks) throws PerlicaException {
+    private String deleteTask(String[] input) throws PerlicaException {
         if (input.length < 2) {
             throw new PerlicaException("Please specify which task to delete.");
         }
 
         if (input[1].trim().equalsIgnoreCase("all")) {
             tasks.clear();
-            printResponse("Noted. I've removed all tasks.",
+            return String.join("\n", "Noted. I've removed all tasks.",
                     "Now you have 0 task(s) in the list.");
-            return;
         }
 
         int index;
@@ -243,7 +208,7 @@ public class Perlica {
         }
         String taskDeleted = tasks.get(index).toString();
         tasks.remove(index);
-        printResponse("Noted. I've removed this task:", "   " + taskDeleted,
+        return String.join("\n", "Noted. I've removed this task:", "   " + taskDeleted,
                 "Now you have " + tasks.size() + " task(s) in the list.");
     }
 
@@ -253,10 +218,10 @@ public class Perlica {
      *
      * @param input The parsed user input containing the command and the search
      *              keyword.
-     * @param tasks The current list of tasks to search within.
+     * @return The formatted string of all matching tasks.
      * @throws PerlicaException If no keyword is provided.
      */
-    static void findTask(String[] input, ArrayList<Task> tasks) throws PerlicaException {
+    private String findTask(String[] input) throws PerlicaException {
         if (input.length < 2 || input[1].trim().isEmpty()) {
             throw new PerlicaException("Please enter a keyword to find.");
         }
@@ -271,9 +236,62 @@ public class Perlica {
             }
         }
         if (count == 1) {
-            printResponse(" No matching tasks found.");
+            return " No matching tasks found.";
         } else {
-            printResponse(matchingOutput.toArray(new String[0]));
+            return String.join("\n", matchingOutput);
+        }
+    }
+
+    /**
+     * Generates a response for the user's chat message by parsing the command.
+     * 
+     * @param inputString The raw user input command.
+     * @return A formatted response showing the bot's reaction to the action.
+     */
+    public String getResponse(String inputString) {
+        try {
+            String[] input = inputString.trim().split(" ", 2);
+            String command = input[0];
+            String response = "";
+            switch (command) {
+            case "bye":
+                if (input.length == 1) {
+                    response = " Bye. Hope to see you again soon!";
+                } else {
+                    throw new PerlicaException("Hey, only saying bye is enough.");
+                }
+                break;
+            case "list":
+                if (input.length == 1) {
+                    response = getList();
+                } else {
+                    throw new PerlicaException("Type \"list\" to view all tasks.");
+                }
+                break;
+            case "mark":
+            case "unmark":
+                response = updateMarking(command, input);
+                break;
+            case "todo":
+            case "deadline":
+            case "event":
+                response = addTask(command, input);
+                break;
+            case "delete":
+                response = deleteTask(input);
+                break;
+            case "find":
+                response = findTask(input);
+                break;
+            default:
+                throw new PerlicaException("I can't understand your command. Please try again.");
+            }
+            Storage.saveTasks(tasks);
+            return response;
+        } catch (PerlicaException e) {
+            return " " + e.getMessage();
+        } catch (NumberFormatException e) {
+            return "Invalid task index.";
         }
     }
 }
