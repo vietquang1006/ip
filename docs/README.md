@@ -1,30 +1,63 @@
-# Duke User Guide
+# Perlica User Guide
 
-// Update the title above to match the actual product name
+**Perlica** is a personal task management assistant optimized for use via a Command Line Interface (CLI). Perlica is capable of tracking three different types of tasks (ToDos, Deadlines, and Events) and provides various administrative commands to organize your daily schedule.
 
-// Product screenshot goes here
+## Features
 
-// Product intro goes here
+### Adding Tasks
 
-## Adding deadlines
+You can add three types of tasks: ToDos, Deadlines, and Events.
 
-// Describe the action and its outcome.
+#### `todo`
+Adds a basic task without any date or time attached to it.
+* **Format:** `todo <description>`
+* **Example:** `todo read book`
 
-// Give examples of usage
+#### `deadline`
+Adds a task that needs to be done before a specific date/time. The app supports parsing common date and time formats.
+* **Format:** `deadline <description> /by <date/time>`
+* **Accepted Date Formats:** `yyyy-MM-dd HHmm`, `d/M/yyyy HHmm`, `yyyy-MM-dd`, `d/M/yyyy`
+* **Example:** `deadline return book /by 2/12/2019 1800`
 
-Example: `keyword (optional arguments)`
+#### `event`
+Adds a task that starts at a specific date/time and ends at a specific date/time.
+* **Format:** `event <description> /from <start date/time> /to <end date/time>`
+* **Example:** `event project meeting /from Mon 2pm /to 4pm`
 
-// A description of the expected outcome goes here
+### Managing Tasks
 
-```
-expected output
-```
+#### `list`
+Shows a list of all current tasks.
+* **Format:** `list`
 
-## Feature ABC
+#### `mark`
+Marks a task as done based on its index in the task list.
+* **Format:** `mark <list_index>`
+* **Example:** `mark 2` (marks the 2nd task from the list as done)
 
-// Feature details
+#### `unmark`
+Marks a task as not done based on its index in the task list.
+* **Format:** `unmark <list_index>`
+* **Example:** `unmark 2` (marks the 2nd task from the list as not done)
 
+#### `delete`
+Deletes an existing task from your list based on its index. Alternatively, deletes all tasks.
+* **Format:** `delete <list_index>` or `delete all`
+* **Example:** `delete 3` (deletes the 3rd task from the list)
+* **Example:** `delete all` (clears the entire task list)
 
-## Feature XYZ
+### Finding Tasks
 
-// Feature details
+#### `find`
+Finds tasks whose descriptions contain the given keyword.
+* **Format:** `find <keyword>`
+* **Example:** `find book` (returns all tasks containing the word "book")
+
+### Exiting the Application
+
+#### `bye`
+Exits the application gracefully. All tasks are automatically saved to your hard disk on exit.
+* **Format:** `bye`
+
+## Storage
+Perlica data is automatically saved to the hard disk at `./data/perlica-list.txt` after any command that changes the data. There is no need to manually save.
