@@ -54,6 +54,8 @@ public class Perlica {
         printResponse(" Hello! I'm Perlica", " What can I do for you?");
     }
 
+    private static final String HORIZONTAL_LINE = "____________________________________________________________";
+
     /**
      * Prints one or more custom messages framed by horizontal lines.
      *
@@ -61,11 +63,11 @@ public class Perlica {
      *              line.
      */
     static void printResponse(String... lines) {
-        System.out.println("____________________________________________________________");
+        System.out.println(HORIZONTAL_LINE);
         for (String line : lines) {
             System.out.println(line);
         }
-        System.out.println("____________________________________________________________");
+        System.out.println(HORIZONTAL_LINE);
     }
 
     /**
