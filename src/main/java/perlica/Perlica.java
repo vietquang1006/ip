@@ -78,6 +78,7 @@ public class Perlica {
      * @throws PerlicaException If the input format is invalid or missing details.
      */
     private String addTask(String type, String[] input) throws PerlicaException {
+        assert type.equals("todo") || type.equals("deadline") || type.equals("event") : "Invalid task type";
         if (input.length < 2 || input[1].trim().isEmpty()) {
             throw new PerlicaException("Invalid task.");
         }
@@ -85,42 +86,13 @@ public class Perlica {
         Task task;
         switch (type) {
         case "todo":
-            task = new Todo(details);
+            task = createTodo(details);
             break;
         case "deadline":
-            if (!details.contains(" /by ")) {
-                throw new PerlicaException("Invalid deadline, please try again.\n"
-                        + "deadline + task + /by + time");
-            }
-            String[] deadlineArguments = input[1].split(" /by ", 2);
-            if (deadlineArguments.length < 2
-                    || deadlineArguments[0].trim().isEmpty()
-                    || deadlineArguments[1].trim().isEmpty()) {
-                throw new PerlicaException("Invalid deadline, please try again.\n"
-                        + "deadline + task + /by + time");
-            }
-            String deadlineDescription = deadlineArguments[0].trim();
-            String time = deadlineArguments[1].trim();
-            task = new Deadline(deadlineDescription, time);
+            task = createDeadline(details);
             break;
         case "event":
-            if (!details.contains(" /from ") || !details.contains(" /to ")
-                    || details.indexOf(" /from ") > details.indexOf(" /to ")) {
-                throw new PerlicaException("Invalid event, please try again.\n"
-                        + "event + task + /from + startTime + /to + endTime");
-            }
-            String[] eventArguments = input[1].split(" /from | /to ", 3);
-            if (eventArguments.length < 3
-                    || eventArguments[0].trim().isEmpty()
-                    || eventArguments[1].trim().isEmpty()
-                    || eventArguments[2].trim().isEmpty()) {
-                throw new PerlicaException("Invalid event, please try again.\n"
-                        + "deadline + task + /by + time");
-            }
-            String eventDescription = eventArguments[0];
-            String start = eventArguments[1];
-            String end = eventArguments[2];
-            task = new Event(eventDescription, start, end);
+            task = createEvent(details);
             break;
         default:
             throw new PerlicaException("Unknown error");
@@ -129,6 +101,38 @@ public class Perlica {
         return String.join("\n", "Got it. I've added this task:",
                 "   " + task,
                 "Now you have " + tasks.size() + " task(s) in the list.");
+    }
+
+    private Todo createTodo(String details) {
+        return new Todo(details);
+    }
+
+    private Deadline createDeadline(String details) throws PerlicaException {
+        if (!details.contains(" /by ")) {
+            throw new PerlicaException("Invalid deadline, please try again.\n"
+                    + "deadline + task + /by + time");
+        }
+        String[] arguments = details.split(" /by ", 2);
+        if (arguments.length < 2 || arguments[0].trim().isEmpty() || arguments[1].trim().isEmpty()) {
+            throw new PerlicaException("Invalid deadline, please try again.\n"
+                    + "deadline + task + /by + time");
+        }
+        return new Deadline(arguments[0].trim(), arguments[1].trim());
+    }
+
+    private Event createEvent(String details) throws PerlicaException {
+        if (!details.contains(" /from ") || !details.contains(" /to ")
+                || details.indexOf(" /from ") > details.indexOf(" /to ")) {
+            throw new PerlicaException("Invalid event, please try again.\n"
+                    + "event + task + /from + startTime + /to + endTime");
+        }
+        String[] arguments = details.split(" /from | /to ", 3);
+        if (arguments.length < 3 || arguments[0].trim().isEmpty()
+                || arguments[1].trim().isEmpty() || arguments[2].trim().isEmpty()) {
+            throw new PerlicaException("Invalid event, please try again.\n"
+                    + "event + task + /from + startTime + /to + endTime");
+        }
+        return new Event(arguments[0].trim(), arguments[1].trim(), arguments[2].trim());
     }
 
     /**
