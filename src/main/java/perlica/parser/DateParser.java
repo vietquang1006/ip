@@ -43,6 +43,7 @@ public class DateParser {
      *                                supported format.
      */
     public static LocalDateTime parse(String dateString) throws DateTimeParseException {
+        assert dateString != null && !dateString.trim().isEmpty() : "Date string cannot be null or empty";
         // Try date-time formats
         for (DateTimeFormatter formatter : FORMATS) {
             try {
@@ -73,6 +74,7 @@ public class DateParser {
      * @return A formatted string representation of the given date and time.
      */
     public static String format(LocalDateTime date) {
+        assert date != null : "Date to be formatted cannot be null";
         return date.format(OUTPUT_FORMAT);
     }
 }
