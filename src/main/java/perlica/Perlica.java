@@ -78,6 +78,7 @@ public class Perlica {
      * @throws PerlicaException If the input format is invalid or missing details.
      */
     private String addTask(String type, String[] input) throws PerlicaException {
+        assert type.equals("todo") || type.equals("deadline") || type.equals("event") : "Invalid task type";
         if (input.length < 2 || input[1].trim().isEmpty()) {
             throw new PerlicaException("Invalid task.");
         }
@@ -142,6 +143,7 @@ public class Perlica {
      *                          formatted.
      */
     private String updateMarking(String type, String[] input) throws PerlicaException {
+        assert type.equals("mark") || type.equals("unmark") : "Type must be 'mark' or 'unmark'";
         if (input.length < 2) {
             throw new PerlicaException("Please specify which task to mark/unmark.");
         }
@@ -249,6 +251,7 @@ public class Perlica {
      * @return A formatted response showing the bot's reaction to the action.
      */
     public String getResponse(String inputString) {
+        assert inputString != null : "Input string cannot be null";
         try {
             String[] input = inputString.trim().split(" ", 2);
             String command = input[0];
