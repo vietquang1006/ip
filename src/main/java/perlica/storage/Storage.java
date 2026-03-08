@@ -88,6 +88,7 @@ public class Storage {
      *                          parsed.
      */
     private static Task parseLineToTask(String line) throws PerlicaException {
+        assert line != null : "Line to parse should not be null";
         String[] parts = line.split(" \\| ");
         if (parts.length < 3) {
             throw new PerlicaException("Invalid format");
